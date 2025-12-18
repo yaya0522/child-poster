@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儿童识字小报生成器</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 页面标题 -->
+        <header class="header">
+            <h1 class="title">
+                <span class="emoji">📚</span>
+                儿童识字小报生成器
+            </h1>
+            <p class="subtitle">为5-9岁儿童创建有趣的识字学习小报</p>
+        </header>
+
+        <!-- API密钥设置区域 -->
+        <section class="api-key-section">
+            <div class="input-group">
+                <label for="apiKey">API密钥：</label>
+                <input type="password" id="apiKey" placeholder="请输入您的Nano Banana Pro API密钥">
+                <button id="saveApiKey" class="btn btn-secondary">保存</button>
+            </div>
+        </section>
+
+        <!-- 输入区域 -->
+        <section class="input-section">
+            <h2 class="section-title">创建识字小报</h2>
+
+            <div class="input-group">
+                <label for="theme">主题/场景：</label>
+                <select id="theme" class="theme-select">
+                    <option value="">请选择主题</option>
+                    <option value="超市">超市</option>
+                    <option value="医院">医院</option>
+                    <option value="公园">公园</option>
+                    <option value="学校">学校</option>
+                    <option value="动物园">动物园</option>
+                    <option value="家庭">家庭</option>
+                    <option value="餐厅">餐厅</option>
+                    <option value="图书馆">图书馆</option>
+                </select>
+                <input type="text" id="customTheme" placeholder="或输入自定义主题">
+            </div>
+
+            <div class="input-group">
+                <label for="newspaperTitle">小报标题：</label>
+                <input type="text" id="newspaperTitle" placeholder="例如：《走进超市》《快乐医院》">
+            </div>
+
+            <button id="generateBtn" class="btn btn-primary" disabled>
+                <span class="emoji">✨</span>
+                生成小报
+            </button>
+        </section>
+
+        <!-- 进度显示区域 -->
+        <section class="progress-section" id="progressSection" style="display: none;">
+            <h3 class="section-title">生成进度</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">正在创建任务...</p>
+        </section>
+
+        <!-- 结果展示区域 -->
+        <section class="result-section" id="resultSection" style="display: none;">
+            <h3 class="section-title">生成结果</h3>
+            <div class="result-container">
+                <div class="image-container">
+                    <img id="generatedImage" src="" alt="生成的识字小报">
+                    <div class="image-overlay" id="imageOverlay">
+                        <span class="loading-text">图片加载中...</span>
+                    </div>
+                </div>
+                <div class="result-actions">
+                    <button id="downloadBtn" class="btn btn-success">
+                        <span class="emoji">💾</span>
+                        下载图片
+                    </button>
+                    <button id="regenerateBtn" class="btn btn-secondary">
+                        <span class="emoji">🔄</span>
+                        重新生成
+                    </button>
+                    <button id="newspaperBtn" class="btn btn-info">
+                        <span class="emoji">📰</span>
+                        生成新的小报
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 历史记录区域 -->
+        <section class="history-section" id="historySection" style="display: none;">
+            <h3 class="section-title">历史记录</h3>
+            <div class="history-grid" id="historyGrid">
+                <!-- 历史记录将动态添加到这里 -->
+            </div>
+        </section>
+
+        <!-- 错误提示 -->
+        <div class="error-toast" id="errorToast" style="display: none;">
+            <span class="error-icon">⚠️</span>
+            <span class="error-message" id="errorMessage"></span>
+            <button class="error-close" onclick="hideError()">&times;</button>
+        </div>
+
+        <!-- 成功提示 -->
+        <div class="success-toast" id="successToast" style="display: none;">
+            <span class="success-icon">✅</span>
+            <span class="success-message" id="successMessage"></span>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p>基于 Nano Banana Pro API 构建 | 适合儿童的学习工具</p>
+    </footer>
+
+    <!-- 引入JavaScript文件 -->
+    <script src="js/utils.js"></script>
+    <script src="js/prompt-generator.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

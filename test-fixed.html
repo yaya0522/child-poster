@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儿童识字小报生成器 - 测试版</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 页面标题 -->
+        <header class="header">
+            <h1 class="title">
+                <span class="emoji">📚</span>
+                儿童识字小报生成器（测试版）
+            </h1>
+            <p class="subtitle">为5-9岁儿童创建有趣的识字学习小报</p>
+        </header>
+
+        <!-- API密钥设置区域 -->
+        <section class="api-key-section">
+            <div class="input-group">
+                <label for="apiKey">API密钥：</label>
+                <input type="password" id="apiKey" placeholder="请输入您的Nano Banana Pro API密钥">
+                <button id="saveApiKey" class="btn btn-secondary">保存</button>
+            </div>
+        </section>
+
+        <!-- 输入区域 -->
+        <section class="input-section" id="inputSection">
+            <h2 class="section-title">创建识字小报</h2>
+
+            <div class="input-group">
+                <label for="theme">主题/场景：</label>
+                <select id="theme" class="theme-select">
+                    <option value="">请选择主题</option>
+                    <option value="超市">超市</option>
+                    <option value="医院">医院</option>
+                    <option value="公园">公园</option>
+                    <option value="学校">学校</option>
+                    <option value="动物园">动物园</option>
+                    <option value="家庭">家庭</option>
+                    <option value="餐厅">餐厅</option>
+                    <option value="图书馆">图书馆</option>
+                </select>
+                <input type="text" id="customTheme" placeholder="或输入自定义主题">
+            </div>
+
+            <div class="input-group">
+                <label for="newspaperTitle">小报标题：</label>
+                <input type="text" id="newspaperTitle" placeholder="例如：《走进超市》《快乐医院》">
+            </div>
+
+            <button id="generateBtn" class="btn btn-primary" disabled>
+                <span class="emoji">✨</span>
+                生成小报
+            </button>
+
+            <!-- 调试信息 -->
+            <div style="margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                <h4>调试信息：</h4>
+                <p id="debugInfo"></p>
+            </div>
+        </section>
+    </div>
+
+    <!-- 错误提示 -->
+    <div class="error-toast" id="errorToast" style="display: none;">
+        <span class="error-icon">⚠️</span>
+        <span class="error-message" id="errorMessage"></span>
+        <button class="error-close" onclick="hideError()">&times;</button>
+    </div>
+
+    <!-- 成功提示 -->
+    <div class="success-toast" id="successToast" style="display: none;">
+        <span class="success-icon">✅</span>
+        <span class="success-message" id="successMessage"></span>
+    </div>
+
+    <!-- 引入JavaScript文件 -->
+    <script src="js/utils.js"></script>
+    <script src="js/prompt-generator.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app-fixed.js"></script>
+    <script>
+        // 调试脚本
+        function updateDebugInfo() {
+            const debugInfo = document.getElementById('debugInfo');
+            const themeSelect = document.getElementById('theme');
+            const customThemeInput = document.getElementById('customTheme');
+            const titleInput = document.getElementById('newspaperTitle');
+            const generateBtn = document.getElementById('generateBtn');
+
+            debugInfo.innerHTML = `
+                主题选择: "${themeSelect.value}"<br>
+                自定义主题: "${customThemeInput.value}"<br>
+                标题: "${titleInput.value}"<br>
+                生成按钮状态: ${generateBtn.disabled ? '禁用' : '启用'}<br>
+                有主题: ${!!(themeSelect.value || customThemeInput.value.trim())}<br>
+                有标题: ${!!titleInput.value.trim()}
+            `;
+        }
+
+        // 监听所有变化
+        document.addEventListener('DOMContentLoaded', () => {
+            setInterval(updateDebugInfo, 500);
+
+            // 调试：模拟输入
+            document.getElementById('apiKey').value = 'test12345678901234567890123456789012';
+            document.getElementById('saveApiKey').click();
+        });
+    </script>
+</body>
+</html>

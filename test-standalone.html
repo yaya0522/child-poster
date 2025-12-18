@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儿童识字小报生成器 - 独立测试版</title>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.1em;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1em;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            margin-right: 10px;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+        .title {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .error-toast, .success-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        .error-toast {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+        .success-toast {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .debug-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面标题 -->
+        <header class="header">
+            <h1 class="title">📚 儿童识字小报生成器</h1>
+            <p class="subtitle">为5-9岁儿童创建有趣的识字学习小报</p>
+        </header>
+
+        <!-- API密钥设置区域 -->
+        <section class="api-key-section" id="api-key-section">
+            <div class="input-group">
+                <label for="apiKey">API密钥：</label>
+                <input type="password" id="apiKey" placeholder="请输入您的Nano Banana Pro API密钥">
+                <button class="btn btn-secondary" onclick="saveApiKey()">保存密钥</button>
+            </div>
+        </section>
+
+        <!-- 输入区域 -->
+        <section class="input-section" id="inputSection" style="display: none;">
+            <h2>创建识字小报</h2>
+
+            <div class="input-group">
+                <label for="theme">主题/场景：</label>
+                <select id="theme">
+                    <option value="">请选择主题</option>
+                    <option value="超市">超市</option>
+                    <option value="医院">医院</option>
+                    <option value="公园">公园</option>
+                    <option value="学校">学校</option>
+                    <option value="动物园">动物园</option>
+                </select>
+                <input type="text" id="customTheme" placeholder="或输入自定义主题">
+            </div>
+
+            <div class="input-group">
+                <label for="newspaperTitle">小报标题：</label>
+                <input type="text" id="newspaperTitle" placeholder="例如：《走进超市》《快乐医院》">
+            </div>
+
+            <button class="btn-primary" id="generateBtn" disabled onclick="generateNewspaper()">
+                <span>✨</span> 生成小报
+            </button>
+
+            <!-- 调试信息 -->
+            <div class="debug-info" id="debugInfo">
+                调试信息将在这里显示...
+            </div>
+        </section>
+    </div>
+
+    <!-- 提示消息 -->
+    <div class="error-toast" id="errorToast" style="display: none;">
+        <span id="errorMessage"></span>
+    </div>
+    <div class="success-toast" id="successToast" style="display: none;">
+        <span id="successMessage"></span>
+    </div>
+
+    <script>
+        // 全局变量
+        let hasApiKey = false;
+
+        // 更新调试信息
+        function updateDebugInfo() {
+            const debugInfo = document.getElementById('debugInfo');
+            const themeSelect = document.getElementById('theme');
+            const customThemeInput = document.getElementById('customTheme');
+            const titleInput = document.getElementById('newspaperTitle');
+            const generateBtn = document.getElementById('generateBtn');
+
+            if (!debugInfo || !themeSelect || !customThemeInput || !titleInput || !generateBtn) {
+                console.log('缺少必要的DOM元素');
+                return;
+            }
+
+            const hasTheme = themeSelect.value || customThemeInput.value.trim();
+            const hasTitle = titleInput.value.trim();
+
+            generateBtn.disabled = !(hasTheme && hasTitle && hasApiKey);
+
+            debugInfo.innerHTML = `
+                <strong>调试信息：</strong><br>
+                API密钥: ${hasApiKey ? '已保存' : '未保存'}<br>
+                主题选择: "${themeSelect.value}"<br>
+                自定义主题: "${customThemeInput.value}"<br>
+                标题: "${titleInput.value}"<br>
+                有主题: ${hasTheme}<br>
+                有标题: ${hasTitle}<br>
+                按钮状态: ${generateBtn.disabled ? '禁用' : '启用'}
+            `;
+
+            // 控制台日志
+            console.log('按钮状态更新:', {
+                hasApiKey: hasApiKey,
+                theme: themeSelect.value,
+                customTheme: customThemeInput.value,
+                title: titleInput.value,
+                hasTheme: hasTheme,
+                hasTitle: hasTitle,
+                disabled: generateBtn.disabled
+            });
+        }
+
+        // 保存API密钥
+        function saveApiKey() {
+            const apiKeyInput = document.getElementById('apiKey');
+            if (!apiKeyInput) return;
+
+            const apiKey = apiKeyInput.value.trim();
+            if (apiKey.length < 10) {
+                showError('请输入有效的API密钥（至少10个字符）');
+                return;
+            }
+
+            hasApiKey = true;
+            localStorage.setItem('apiKey', apiKey);
+
+            // 切换显示
+            document.getElementById('api-key-section').style.display = 'none';
+            document.getElementById('inputSection').style.display = 'block';
+
+            showSuccess('API密钥已保存');
+            updateDebugInfo();
+        }
+
+        // 主题选择处理
+        document.getElementById('theme').addEventListener('change', function(e) {
+            const customThemeInput = document.getElementById('customTheme');
+            if (e.target.value) {
+                customThemeInput.value = '';
+                customThemeInput.disabled = true;
+            } else {
+                customThemeInput.disabled = false;
+                customThemeInput.focus();
+            }
+            updateDebugInfo();
+        });
+
+        // 监听所有输入
+        document.getElementById('customTheme').addEventListener('input', updateDebugInfo);
+        document.getElementById('newspaperTitle').addEventListener('input', updateDebugInfo);
+
+        // 生成小报
+        function generateNewspaper() {
+            const themeSelect = document.getElementById('theme');
+            const customThemeInput = document.getElementById('customTheme');
+            const titleInput = document.getElementById('newspaperTitle');
+
+            const theme = themeSelect.value || customThemeInput.value.trim();
+            const title = titleInput.value.trim();
+
+            if (!theme || !title) {
+                showError('请填写主题和标题');
+                return;
+            }
+
+            if (!hasApiKey) {
+                showError('请先设置API密钥');
+                return;
+            }
+
+            // 模拟生成过程
+            const generateBtn = document.getElementById('generateBtn');
+            const originalText = generateBtn.innerHTML;
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '⚙️ 生成中...';
+
+            setTimeout(() => {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = originalText;
+                showSuccess('测试成功！主题：' + theme + '，标题：' + title);
+            }, 2000);
+        }
+
+        // 显示消息
+        function showError(message) {
+            const errorToast = document.getElementById('errorToast');
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorToast.style.display = 'block';
+            setTimeout(() => {
+                errorToast.style.display = 'none';
+            }, 3000);
+        }
+
+        function showSuccess(message) {
+            const successToast = document.getElementById('successToast');
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = message;
+            successToast.style.display = 'block';
+            setTimeout(() => {
+                successToast.style.display = 'none';
+            }, 3000);
+        }
+
+        // 页面加载时检查API密钥
+        window.addEventListener('load', () => {
+            const savedApiKey = localStorage.getItem('apiKey');
+            if (savedApiKey) {
+                hasApiKey = true;
+                document.getElementById('apiKey').value = savedApiKey;
+                document.getElementById('api-key-section').style.display = 'none';
+                document.getElementById('inputSection').style.display = 'block';
+                showSuccess('已加载保存的API密钥');
+            }
+            updateDebugInfo();
+        });
+
+        // 定期更新调试信息
+        setInterval(updateDebugInfo, 1000);
+    </script>
+</body>
+</html>
